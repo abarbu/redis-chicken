@@ -4,6 +4,9 @@
 
 (verify-extension-name "redis")
 
+(unless (file-exists? "hiredis/Makefile")
+ (error "You have to initialize the git submodules. 'git submodule init && git submodule update'. You can alternatively clone with 'git clone --recursive' in the future."))
+
 (run ("cd hiredis; make"))
 
 (setup-shared-extension-module 'redis (extension-version "1.0")
