@@ -1,0 +1,41 @@
+[[tags: egg db]]
+[[toc:]]
+
+Do not edit this page, it is maintained in the this package's [https://github.com/abarbu/redis github repository].
+
+= redis =
+
+Fast bindings to redis using hiredis. Note that you will need to fetch
+the git submodules in thist package. These provide only the
+synchornous API and at the moment do not provide timeouts but will do
+so one day.
+
+<procedure>(redis-connect hostname port)</procedure>
+
+Connect to a redis host, will produce an error if the connection
+fails. Returns an opaque pointer to the redis context.
+
+<procedure>(redis-command context string)</procedure>
+
+Send the string as a command to redis and parse the reply. Arrays are
+converted into lists.
+
+=== Example ===
+
+   (redis-command (redis-connect "127.0.0.1" 6379) "keys *")
+
+This will produce a list of strings, the keys in the redis database.
+
+=== License ===
+
+Copyright 2012 Andrei Barbu. All rights reserved.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see http://www.gnu.org/licenses.
