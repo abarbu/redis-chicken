@@ -1,0 +1,11 @@
+;;;  -*- Hen -*-
+
+(use setup-helper-mod)
+
+(verify-extension-name "redis")
+
+(run ("cd hiredis; make"))
+
+(setup-shared-extension-module 'redis (extension-version "1.0")
+  #:inline? #t #:types? #t
+  #:compile-options '(-O3 -d2 hiredis/libhiredis.a))
