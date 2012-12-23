@@ -14,7 +14,8 @@
   (condition-utils "1.0.0")
   (traversal "1.0")
   (bind "1.0")
-  (easyffi "1.99.7"))
+  (easyffi "1.99.7")
+  (define-structure "1.0"))
  (test-depends test)
  (files "redis.meta" 
         "redis.release-info"
