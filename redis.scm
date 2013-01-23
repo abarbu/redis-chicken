@@ -1,12 +1,12 @@
 (module redis (redis-connect redis-command)
 (import chicken scheme extras foreign)
-(use traversal bind easyffi lolevel define-structure)
+(use bind easyffi lolevel defstruct)
 
 #>
 #include "hiredis/hiredis.h"
 <#
 
-(define-structure redis-context ptr)
+(defstruct redis-context ptr)
 
 (define redis-err-io (foreign-value "REDIS_ERR_IO" int))
 (define redis-err-eof (foreign-value "REDIS_ERR_EOF" int))
@@ -24,6 +24,9 @@
 (bind "#include \"hiredis-proto.h\"")
 
 (define (process-hiredis-reply context-ptr reply)
+ (define (map-n f n)
+  (let loop ((i 0) (c '()))
+   (if (< i n) (loop (+ i 1) (cons (f i) c)) (reverse c))))
  (when reply
   (cond ((equal? redis-reply-string (redisReply-type reply))
          (redisReply-str reply))
@@ -59,7 +62,9 @@
         (else (error "unexpected redis reply" (redisReply-type reply))))))
 
 (define (redis-command context command)
- (unless (redis-context? context) (error "invalid redis context" context))
+ (unless (and (redis-context? context)
+            (redis-context-ptr context))
+  (error "invalid redis context"))
  (process-hiredis-reply
   (redis-context-ptr context)
   (set-finalizer! ((foreign-lambda (c-pointer "redisReply")
@@ -76,5 +81,5 @@
   (set-finalizer! context redisFree)
   (when (> (redisContext-err context) 0)
    (error (string-append "redis " (redisContext-errstr context))))
-  (make-redis-context context)))
+  (make-redis-context ptr: context)))
 )
