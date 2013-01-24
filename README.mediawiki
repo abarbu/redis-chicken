@@ -1,9 +1,8 @@
 = redis =
 
 Fast bindings to redis using hiredis. Note that you will need to fetch
-the git submodules in this package. These provide only the
-synchornous API and at the moment do not provide timeouts but will do
-so one day.
+the git submodules in this package. These bindings provide only the
+synchornous API and at the moment do not provide timeouts.
 
 :(redis-connect hostname port)
 
@@ -24,6 +23,9 @@ This will produce a list of strings, the keys in the redis database.
 === License ===
 
 Copyright 2012 Andrei Barbu. All rights reserved.
+
+Contact Andrei Barbu at andrei@0xab.com.
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
