@@ -1,11 +1,9 @@
 ;;;  -*- Hen -*-
 
-((egg "redis.egg")
- (category db)
+((category db)
  (author "Andrei Barbu")
  (maintainer "Andrei Barbu")
  (license "LGPL")
- (doc-from-wiki)
  (synopsis "High-performance redis bindings using hiredis")
  (depends setup-helper miscmacros check-errors
           condition-utils bind easyffi defstruct)
