@@ -1,21 +1,14 @@
 ;;;  -*- Hen -*-
 
 ((egg "redis.egg")
- (category misc)
+ (category db)
  (author "Andrei Barbu")
  (maintainer "Andrei Barbu")
- (license "GPL")
+ (license "LGPL")
  (doc-from-wiki)
  (synopsis "High-performance redis bindings using hiredis")
- (depends
-  (setup-helper "1.5.2")
-  (miscmacros "2.91")
-  (check-errors "1.12.0")
-  (condition-utils "1.0.0")
-  (bind "1.0")
-  (easyffi "1.99.7")
-  (defstruct "1.6"))
- (test-depends test)
+ (depends setup-helper miscmacros check-errors
+          condition-utils bind easyffi defstruct)
  (files "redis.meta" 
         "redis.release-info"
         "redis.scm" 
