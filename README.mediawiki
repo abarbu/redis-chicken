@@ -1,28 +1,45 @@
-= redis =
+This page is maintained in the package's
+[[https://github.com/abarbu/redis-chicken |github repository]].
 
 Fast bindings to redis using hiredis. Note that you will need to fetch
 the git submodules in this package. These bindings provide only the
 synchornous API and at the moment do not provide timeouts.
 
-:(redis-connect hostname port)
+: (redis-connect hostname port)
 
 Connect to a redis host, will produce an error if the connection
 fails. Returns an opaque pointer to the redis context.
 
-:(redis-command context string)
+: (redis-command context string)
 
 Send the string as a command to redis and parse the reply. Arrays are
-converted into lists.
+converted into lists. Due to a bug in hiredis if your command has a
+string argument which contains whitespace you need to use
+''redis-command*'' instead as it is impossible to correctly escape
+whitespace characters. If you want to pass in binary data you should
+also look at ''redis-command*'' instead.
+
+: (redis-command* context command . arguments)
+
+Like ''redis-command'' but separately specifies the command and each
+of its arguments. When you have a string argument which contains
+whitespace you must use this function instead of ''redis-command''
+because of a bug in hiredis.
 
 === Example ===
-
    (redis-command (redis-connect "127.0.0.1" 6379) "keys *")
 
 This will produce a list of strings, the keys in the redis database.
 
+   (begin (redis-command* (redis-connect "127.0.0.1" 6379) "hset" "a" "b" "x y z")
+          (redis-command* (redis-connect "127.0.0.1" 6379) "hget" "a" "b"))
+
+Set key ''b'' in hash table ''a'' to a string which may contain
+whitespace and retrieve that string.
+
 === License ===
 
-Copyright 2012 Andrei Barbu. All rights reserved.
+Copyright 2012-2013 Andrei Barbu. All rights reserved.
 
 Contact Andrei Barbu at andrei@0xab.com.
 

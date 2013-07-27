@@ -1,4 +1,4 @@
-(module redis (redis-connect redis-command)
+(module redis (redis-connect redis-command redis-command*)
 (import chicken scheme extras foreign)
 (use bind easyffi lolevel defstruct)
 
@@ -45,7 +45,8 @@
          (redisReply-integer reply))
         ((equal? redis-reply-nil (redisReply-type reply)) #f)
         ((equal? redis-reply-status (redisReply-type reply))
-         (error "redis status unimplemented"))
+         (unless (equal? (redisReply-str reply) "OK")
+          (error "redis status" (redisReply-str reply))))
         ((equal? redis-reply-error (redisReply-type reply))
          (cond
           ((equal? redis-err-io (redisContext-err context-ptr))
@@ -58,7 +59,8 @@
            (error "redis out of memory"))
           ((equal? redis-err-other (redisContext-err context-ptr))
            (error (string-append "redis " (redisContext-errstr context-ptr))))
-          (else (error "redis unknown error" (redisReply-type reply)))))
+          (else (error "redis error" (redisReply-type reply)
+                       (redisReply-str reply)))))
         (else (error "unexpected redis reply" (redisReply-type reply))))))
 
 (define (redis-command context command)
@@ -72,8 +74,36 @@
                                    (c-pointer "redisContext")
                                    c-string)
                    (redis-context-ptr context)
-                   command) 
+                   command)
                   freeReplyObject)))
+
+(define (redis-command* context command . arguments)
+ (unless (and (redis-context? context)
+            (redis-context-ptr context))
+  (error "invalid redis context"))
+ (process-hiredis-reply
+  (redis-context-ptr context)
+  (set-finalizer!
+   ((foreign-lambda* (c-pointer "redisReply")
+                     (((c-pointer "struct redisContext") redisContext)
+                      (scheme-object strings)
+                      (integer nr_of_strings))
+                     "const char *arguments[nr_of_strings];"
+                     "size_t sizes[nr_of_strings];"
+                     "C_word head = strings;"
+                     "int index = 0;"
+                     "while(head != C_SCHEME_END_OF_LIST) {"
+                     " C_word obj = C_u_i_car(head);"
+                     " arguments[index] = C_c_string(obj);"
+                     " sizes[index] = C_unfix(C_i_string_length(obj));"
+                     " head = C_u_i_cdr(head);"
+                     " index++;"
+                     "}"
+                     "C_return(redisCommandArgv(redisContext, nr_of_strings, arguments, sizes));")
+    (redis-context-ptr context)
+    (cons command arguments)
+    (+ (length arguments) 1))
+   freeReplyObject)))
 
 (define (redis-connect hostname port)
  (let ((context (redisConnect hostname port)))

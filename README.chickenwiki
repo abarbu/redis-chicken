@@ -18,7 +18,18 @@ fails. Returns an opaque pointer to the redis context.
 <procedure>(redis-command context string)</procedure>
 
 Send the string as a command to redis and parse the reply. Arrays are
-converted into lists.
+converted into lists. Due to a bug in hiredis if your command has a
+string argument which contains whitespace you need to use
+''redis-command*'' instead as it is impossible to correctly escape
+whitespace characters. If you want to pass in binary data you should
+also look at ''redis-command*'' instead.
+
+<procedure>(redis-command* context command . arguments)</procedure>
+
+Like ''redis-command'' but separately specifies the command and each
+of its arguments. When you have a string argument which contains
+whitespace you must use this function instead of ''redis-command''
+because of a bug in hiredis.
 
 === Example
 <enscript hilight="scheme">
@@ -27,9 +38,17 @@ converted into lists.
 
 This will produce a list of strings, the keys in the redis database.
 
+<enscript hilight="scheme">
+   (begin (redis-command* (redis-connect "127.0.0.1" 6379) "hset" "a" "b" "x y z")
+          (redis-command* (redis-connect "127.0.0.1" 6379) "hget" "a" "b"))
+</enscript>
+
+Set key ''b'' in hash table ''a'' to a string which may contain
+whitespace and retrieve that string.
+
 === License
 
-Copyright 2012 Andrei Barbu. All rights reserved.
+Copyright 2012-2013 Andrei Barbu. All rights reserved.
 
 Contact Andrei Barbu at andrei@0xab.com.
 
