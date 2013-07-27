@@ -9,6 +9,6 @@
 
 (run ("cd hiredis; make"))
 
-(setup-shared-extension-module 'redis (extension-version "1.0")
+(setup-shared-extension-module 'redis (extension-version "2.0")
   #:inline? #t #:types? #t
   #:compile-options '(-O3 -d2 hiredis/libhiredis.a))
